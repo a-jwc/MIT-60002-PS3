@@ -6,10 +6,21 @@ import threading
 import traceback
 import unittest
 import random
-import imp
+# import imp
+# test = imp.load_compiled("test", "test.pyc")
 
-test = imp.load_compiled("test", "test.pyc")
+# import importlib.util
+# spec = importlib.util.spec_from_file_location("test", "test.pyc")
+# foo = importlib.util.module_from_spec(spec)
+# spec.loader.exec_module(foo)
+# foo.myClass()
+
+# from importlib import machinery
+# test = machinery.SourceFileLoader('test','test.pyc').load_module()
+# test.MyClass()
+
 import ps3
+from ps3 import Position
 
 def xyrange(x_upper_bound, y_upper_bound):
     """ Returns the cartesian product of range(x_upper_bound) and range(y_upper_bound).
@@ -25,7 +36,7 @@ class ps3_P1A(unittest.TestCase):
         """Test if student implemented methods in RectangularRoom abstract class that should not be implemented"""
         room = ps3.RectangularRoom(2,2,1)
         self.assertRaises(NotImplementedError, room.get_num_tiles)
-        pos = test.Position(1,1)
+        pos = Position(1,1)
         self.assertRaises(NotImplementedError, room.is_position_valid, pos)
         self.assertRaises(NotImplementedError, room.get_random_position)
 
@@ -79,7 +90,8 @@ class ps3_P1A(unittest.TestCase):
         room = ps3.RectangularRoom(width, height, dirt_amount)
         # Clean the tiles and confirm they are marked as clean
         for x, y in xyrange(width, height):
-            room.clean_tile_at_position(test.Position(x + random.random(), y + random.random()), dirt_amount) 
+            test = Position(x + random.random(), y + random.random())
+            room.clean_tile_at_position(test, dirt_amount) 
                 # using random.random in case there is any issue with specific parts of a tile
         for x, y in xyrange(width, height):
             self.assertTrue(room.is_tile_cleaned(x, y),
@@ -92,7 +104,8 @@ class ps3_P1A(unittest.TestCase):
         room = ps3.RectangularRoom(width, height, dirt_amount)
         # Clean the tiles and confirm they are marked as clean
         for x, y in xyrange(width, height):
-            room.clean_tile_at_position(test.Position(x + random.random(), y + random.random()), dirt_amount - 1) 
+            test = Position(x + random.random(), y + random.random())
+            room.clean_tile_at_position(test, dirt_amount - 1) 
                 # using random.random in case there is any issue with specific parts of a tile
         for x, y in xyrange(width, height):
             self.assertFalse(room.is_tile_cleaned(x, y),
@@ -105,7 +118,8 @@ class ps3_P1A(unittest.TestCase):
         room = ps3.RectangularRoom(width, height, dirt_amount)
         # Clean the tiles and confirm they are marked as clean
         for x, y in xyrange(width, height):
-            room.clean_tile_at_position(test.Position(x + random.random(), y + random.random()), 1) 
+            test = Position(x + random.random(), y + random.random())
+            room.clean_tile_at_position(test, 1) 
                 # using random.random in case there is any issue with specific parts of a tile
         for x, y in xyrange(width, height):
             self.assertTrue(room.is_tile_cleaned(x, y),
@@ -119,7 +133,8 @@ class ps3_P1A(unittest.TestCase):
         cleaned_tiles = 0
         # Clean some tiles
         for x, y in xyrange(width-1, height-1):
-            room.clean_tile_at_position(test.Position(x + random.random(), y + random.random()), 1)
+            test = Position(x + random.random(), y + random.random())
+            room.clean_tile_at_position(test, 1)
             cleaned_tiles += 1
             num_cleaned = room.get_num_cleaned_tiles()
             self.assertEqual(num_cleaned, cleaned_tiles,
@@ -133,7 +148,8 @@ class ps3_P1A(unittest.TestCase):
         cleaned_tiles = 0
         # Clean some tiles
         for x, y in xyrange(width-1, height-1):
-            room.clean_tile_at_position(test.Position(x + random.random(), y + random.random()), 1)
+            test = Position(x + random.random(), y + random.random())
+            room.clean_tile_at_position(test, 1)
             num_cleaned = room.get_num_cleaned_tiles()
             self.assertEqual(num_cleaned, cleaned_tiles,
                             "Number of clean tiles is incorrect: expected {}, got {}".format(cleaned_tiles, num_cleaned)
@@ -146,8 +162,9 @@ class ps3_P1A(unittest.TestCase):
         cleaned_tiles = 0
         # Clean some tiles
         for x, y in xyrange(width-1, height-1):
-            room.clean_tile_at_position(test.Position(x + random.random(), y + random.random()), 1)
-            room.clean_tile_at_position(test.Position(x + random.random(), y + random.random()), 1)
+            test = Position(x + random.random(), y + random.random())
+            room.clean_tile_at_position(test, 1)
+            room.clean_tile_at_position(test, 1)
             cleaned_tiles += 1
             num_cleaned = room.get_num_cleaned_tiles()
             self.assertEqual(num_cleaned, cleaned_tiles,
@@ -160,9 +177,11 @@ class ps3_P1A(unittest.TestCase):
         room = ps3.RectangularRoom(width, height, dirt_amount)
         # clean all of the tiles in the room        
         for x, y in xyrange(width, height):
-            room.clean_tile_at_position(test.Position(x + random.random(), y + random.random()), dirt_amount)
+            test = Position(x + random.random(), y + random.random())
+            room.clean_tile_at_position(test, dirt_amount)
         for x, y in xyrange(width, height):
-            room.clean_tile_at_position(test.Position(x + random.random(), y + random.random()), 1)
+            test = Position(x + random.random(), y + random.random())
+            room.clean_tile_at_position(test, 1)
             num_cleaned = room.get_num_cleaned_tiles()
             self.assertEqual(num_cleaned, width * height,
                              "Number of clean tiles is incorrect: re-cleaning cleaned tiles must not increase number of cleaned tiles"
@@ -172,20 +191,20 @@ class ps3_P1A(unittest.TestCase):
         "Test is_position_in_room"
         width, height, dirt_amount = (3, 4, 2)
         room = ps3.RectangularRoom(width, height, dirt_amount)
-        solution_room = test.RectangularRoom(width, height, dirt_amount)
+        solution_room = ps3.RectangularRoom(width, height, dirt_amount)
 
         for x in [0.0, -0.1, width - 0.1, width, width + 0.1]:
             for y in [0.0, -0.1, height - 0.1, height, height + 0.1]:
-                pos = test.Position(x, y)
+                pos = Position(x, y)
                 self.assertEquals(solution_room.is_position_in_room(pos),room.is_position_in_room(pos),
                                   "position {},{} is incorrect: expected {}, got {}".format(x, y, solution_room.is_position_in_room(pos), room.is_position_in_room(pos))
                                   )
-
+# Uncomment Here ##########################################################
 class ps3_P1B(unittest.TestCase):
     """test the Robot abstract base class"""
     def test_unimplemented_methods(self):
         """Test if student implemented methods in Robot abstract class that should not be implemented"""
-        room = test.EmptyRoom(2,2,1)
+        room = ps3.EmptyRoom(2,2,1)
         robot = ps3.Robot(room,1,1)
         self.assertRaises(NotImplementedError, robot.update_position_and_clean)
     
@@ -193,7 +212,7 @@ class ps3_P1B(unittest.TestCase):
         """Test get_robot_direction and set_robot_direction"""
         # instantiate EmptyRoom from solutions for testing
         width, height, dirt_amount = (3, 4, 2)
-        solution_room = test.EmptyRoom(width, height, dirt_amount)
+        solution_room = ps3.EmptyRoom(width, height, dirt_amount)
 
         robots = [ps3.Robot(solution_room, 1.0, 1) for i in range(4)]
         directions = [1, 333, 105, 75, 74.3]
@@ -213,7 +232,7 @@ class ps3_P2_ER(unittest.TestCase):
         """
         width, height, dirt_amount = (5, 10, 1)
         room = ps3.EmptyRoom(width, height, dirt_amount)
-        sol_room = test.EmptyRoom(width, height, dirt_amount)
+        sol_room = ps3.EmptyRoom(width, height, dirt_amount)
         freq_buckets = {}
         for i in range(50000):
             pos = room.get_random_position()
@@ -253,11 +272,11 @@ class ps3_P2_ER(unittest.TestCase):
         """
         width, height, dirt_amount = (3, 4, 2)
         room = ps3.EmptyRoom(width, height, dirt_amount)
-        solution_room = test.EmptyRoom(width, height, dirt_amount)
+        solution_room = ps3.EmptyRoom(width, height, dirt_amount)
 
         for x in [0.0, -0.1, width - 0.1, width, width + 0.1]:
             for y in [0.0, -0.1, height - 0.1, height, height + 0.1]:
-                pos = test.Position(x, y)
+                pos = ps3.Position(x, y)
                 self.assertEquals(solution_room.is_position_valid(pos), room.is_position_valid(pos),
                              "student code and solution code disagree on whether position is valid"
                                   )
@@ -271,7 +290,7 @@ class ps3_P2_FR(unittest.TestCase):
             # create room using student's class, set furniture tiles for solution class
             room = ps3.FurnishedRoom(width, height, dirt_amount)
             room.add_furniture_to_room()
-            sol_room = test.FurnishedRoom(width, height, dirt_amount)
+            sol_room = ps3.FurnishedRoom(width, height, dirt_amount)
             # this relies on knowing the underlying details of the class
             sol_room.furniture_tiles = room.furniture_tiles 
             for x,y in xyrange(width,height):
@@ -286,11 +305,11 @@ class ps3_P2_FR(unittest.TestCase):
             # create room using student's class, set furniture tiles for solution class
             room = ps3.FurnishedRoom(width, height, dirt_amount)
             room.add_furniture_to_room()
-            sol_room = test.FurnishedRoom(width, height, dirt_amount)
+            sol_room = ps3.FurnishedRoom(width, height, dirt_amount)
             # this relies on knowing the underlying details of the class
             sol_room.furniture_tiles = room.furniture_tiles 
             for x,y in xyrange(width,height):
-                pos = test.Position(x + random.random(), y + random.random())
+                pos = ps3.Position(x + random.random(), y + random.random())
                 self.assertEquals(room.is_position_furnished(pos),sol_room.is_position_furnished(pos),
                                   "student code and solution code disagree on whether position is furnished"
                                   )
@@ -302,12 +321,12 @@ class ps3_P2_FR(unittest.TestCase):
             width, height, dirt_amount = (3, 4, 2)
             room = ps3.FurnishedRoom(width, height, dirt_amount)
             room.add_furniture_to_room()
-            sol_room = test.FurnishedRoom(width, height, dirt_amount)
+            sol_room = ps3.FurnishedRoom(width, height, dirt_amount)
             sol_room.furniture_tiles = room.furniture_tiles 
     
             for x in [0.0, -0.1, width - 0.1, width, width + 0.1, room.furniture_tiles[0][0] + 0.3]:
                 for y in [0.0, -0.1, height - 0.1, height, height + 0.1, room.furniture_tiles[0][1] + 0.3]:
-                    pos = test.Position(x, y)
+                    pos = ps3.Position(x, y)
                     self.assertEquals(sol_room.is_position_valid(pos), room.is_position_valid(pos),
                                       "student code and solution code disagree on whether position is valid"
                                       )
@@ -417,7 +436,7 @@ class ps3_P3(unittest.TestCase):
         "Test StandardRobot.update_position_and_clean"
         r = ps3.EmptyRoom(3, 5, 1)
         robot = ps3.StandardRobot(r, 1.0, 1)
-        robot.set_robot_position(test.Position(1.5, 2.5))
+        robot.set_robot_position(ps3.Position(1.5, 2.5))
         robot.set_robot_direction(90)
         robot.update_position_and_clean()
         self.assertEquals(robot.get_robot_direction(), 90,
@@ -425,7 +444,7 @@ class ps3_P3(unittest.TestCase):
                           (90, robot.get_robot_direction()))
         # check if robot position is valid
         robotPos = robot.get_robot_position()
-        correctPos = test.Position(2.5, 2.5)
+        correctPos = ps3.Position(2.5, 2.5)
         self.assertTrue(robotPos.get_x() == correctPos.get_x() and robotPos.get_y() == correctPos.get_y(),
                           "Robot position is updated incorrectly by update_position_and_clean: expected %r, got %r" %
                           (ps3.Position(2.5, 2.5), robot.get_robot_position()))
@@ -587,8 +606,8 @@ if __name__ == "__main__":
     suite = unittest.TestSuite()
     suite.addTest(unittest.makeSuite(ps3_P1A))
     suite.addTest(unittest.makeSuite(ps3_P1B))
-    # suite.addTest(unittest.makeSuite(ps3_P2_ER))
-    # suite.addTest(unittest.makeSuite(ps3_P2_FR))
+    suite.addTest(unittest.makeSuite(ps3_P2_ER))
+    suite.addTest(unittest.makeSuite(ps3_P2_FR))
     # suite.addTest(unittest.makeSuite(ps3_P3))
     # suite.addTest(unittest.makeSuite(ps3_P5_Standard))
     # suite.addTest(unittest.makeSuite(ps3_P5_Faulty))
