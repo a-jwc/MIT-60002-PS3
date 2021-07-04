@@ -514,7 +514,7 @@ class SimulationTester(unittest.TestCase):
         thr.start()
         # Allow SIMULATION_TIME_LIMIT seconds for test to finish
         thr.join(SIMULATION_TIME_LIMIT)
-        if thr.isAlive():
+        if thr.is_alive():
             self.fail("Simulation took too long (more than %d seconds)" %
                       SIMULATION_TIME_LIMIT)
         elif thr.getExceptionInfo():
@@ -604,11 +604,11 @@ class ps3_P5_Faulty(SimulationTester):
 
 if __name__ == "__main__":
     suite = unittest.TestSuite()
-    suite.addTest(unittest.makeSuite(ps3_P1A))
-    suite.addTest(unittest.makeSuite(ps3_P1B))
-    suite.addTest(unittest.makeSuite(ps3_P2_ER))
-    suite.addTest(unittest.makeSuite(ps3_P2_FR))
+    # suite.addTest(unittest.makeSuite(ps3_P1A))
+    # suite.addTest(unittest.makeSuite(ps3_P1B))
+    # suite.addTest(unittest.makeSuite(ps3_P2_ER))
+    # suite.addTest(unittest.makeSuite(ps3_P2_FR))
     # suite.addTest(unittest.makeSuite(ps3_P3))
-    # suite.addTest(unittest.makeSuite(ps3_P5_Standard))
+    suite.addTest(unittest.makeSuite(ps3_P5_Standard))
     # suite.addTest(unittest.makeSuite(ps3_P5_Faulty))
     unittest.TextTestRunner(verbosity=3).run(suite)

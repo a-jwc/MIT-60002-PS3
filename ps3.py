@@ -6,6 +6,7 @@
 
 import math
 import random
+from time import time
 
 import ps3_visualize
 import pylab
@@ -85,7 +86,7 @@ class RectangularRoom(object):
         """
         self.width = width
         self.height = height
-        self.room = np.array([[dirt_amount for i in range(height)] for j in range(width)])
+        self.room = np.array([[dirt_amount for i in range(int(height))] for j in range(int(width))])
     
     def clean_tile_at_position(self, pos, capacity):
         """
@@ -451,10 +452,21 @@ class FaultyRobot(Robot):
         StandardRobot at this time-step (checking if it can move to a new position,
         move there if it can, pick a new direction and stay stationary if it can't)
         """
-        raise NotImplementedError
+        new_pos = self.position.get_new_position(self.direction, self.speed)
+        old_pos = self.get_robot_position()
+        if self.gets_faulty():
+            self.set_robot_direction(float(random.random() * 360))
+        else:
+            if self.room.is_position_valid(new_pos):
+                self.set_robot_position(new_pos)
+                self.room.clean_tile_at_position(new_pos, self.capacity)
+            else:
+                self.set_robot_direction(float(random.random() * 360))
+        
+        # raise NotImplementedError
         
     
-#test_robot_movement(FaultyRobot, EmptyRoom)
+# test_robot_movement(FaultyRobot, EmptyRoom)
 
 # === Problem 5
 def run_simulation(num_robots, speed, capacity, width, height, dirt_amount, min_coverage, num_trials,
@@ -478,6 +490,35 @@ def run_simulation(num_robots, speed, capacity, width, height, dirt_amount, min_
     robot_type: class of robot to be instantiated (e.g. StandardRobot or
                 FaultyRobot)
     """
+    room = EmptyRoom(width, height, dirt_amount)
+    robots = []
+    robots = [robot_type(room, speed, capacity) for i in range(num_robots)]
+    coverage = room.get_num_cleaned_tiles()/room.get_num_tiles()
+    avg = 0
+    is_furnished = False
+    time_steps = 0
+    total_time_steps = 0
+    for i in range(num_trials):
+        # print("Trial", i+1)
+        # if is_furnished:
+        #     anim = ps3_visualize.RobotVisualization(num_robots, width, height, room.furniture_tiles) 
+        # else:
+        #     anim = ps3_visualize.RobotVisualization(num_robots, width, height, [])  
+        while coverage < min_coverage:
+            time_steps += 1 
+            for robot in robots:
+                robot.update_position_and_clean()
+                # anim.update(room, robots)
+                coverage = float(room.get_num_cleaned_tiles())/room.get_num_tiles()
+        # anim.done()
+        room = EmptyRoom(width, height, dirt_amount)
+        robots = []
+        robots = [robot_type(room, speed, capacity) for i in range(num_robots)]
+        total_time_steps += time_steps
+        time_steps = 0
+        coverage = room.get_num_cleaned_tiles()/room.get_num_tiles()
+    avg = total_time_steps/num_trials
+    return avg
     raise NotImplementedError
 
 
@@ -494,11 +535,25 @@ def run_simulation(num_robots, speed, capacity, width, height, dirt_amount, min_
 # 1)How does the performance of the two robot types compare when cleaning 80%
 #       of a 20x20 room?
 #
+# Examining the plot depicted by show_plot_compare_strategies, we observe a noticeable clean-time difference between the 
+# StandardRobot and FaultyRobot. As the number of robots increases, this time difference decreases. The greatest time difference is
+# observed when a single standard or faulty robot is cleaning, with the average time steps being ~2090 and ~2500 respectively. Based on
+# this plot, we can conclude that as the number of robots used to clean %80 of a 20x20 room increases, the difference in time-steps
+# needed for StandardRobots and FaultyRobots to complete the cleaning decreases. It is worth noting that the average times were never 
+# equal when testing up to ten robots.
 #
 # 2) How does the performance of the two robot types compare when two of each
 #       robot cleans 80% of rooms with dimensions 
 #       10x30, 20x15, 25x12, and 50x6?
-#
+# Examining the plot depicted by show_plot_room_shape, we observe a larger difference between the time-steps needed to clean the room of
+# varying shapes for StandardRobot and FaultyRobot. This test used two robots for each room. The smallest time difference is observed
+# when the room has an aspect ratio of 20:15. This aspect ratio is also the most similar to an nxn size room relative to the other aspect
+# ratios tested. As the aspect ratio increases after 20:15, the time-steps needed for two FaultyRobots increases faster than two
+# StandardRobots. Taking the smallest and largest time-step differences and approximating values for the calculations, two StandardRobots 
+# clean a 50:6 aspect ratio room ~70.8% faster and a 20:15 aspect ratio room ~83.6% faster than two FaultyRobots. Thus, we can conclude 
+# that two StandardRobots clean rooms of varying dimensions significantly faster than two FaultyRobots. The plot for the previous question 
+# suggests that the time-step difference would decrease as the number of robots cleaning increases.
+#  
 #
 
 def show_plot_compare_strategies(title, x_label, y_label):
@@ -543,5 +598,5 @@ def show_plot_room_shape(title, x_label, y_label):
     pylab.show()
 
 
-#show_plot_compare_strategies('Time to clean 80% of a 20x20 room, for various numbers of robots','Number of robots','Time / steps')
-#show_plot_room_shape('Time to clean 80% of a 300-tile room for various room shapes','Aspect Ratio', 'Time / steps')
+show_plot_compare_strategies('Time to clean 80% of a 20x20 room, for various numbers of robots','Number of robots','Time / steps')
+show_plot_room_shape('Time to clean 80% of a 300-tile room for various room shapes','Aspect Ratio', 'Time / steps')
